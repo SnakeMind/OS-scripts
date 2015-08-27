@@ -378,9 +378,7 @@ chmod -f 0500 "${file}"
 #--- Disable random MAC address on start up
 rm -f /etc/network/if-pre-up.d/macchanger
 
-##
-##Updated up to here...
-##
+
 
 
 if [[ $(which gnome-shell) ]]; then
@@ -391,14 +389,14 @@ export DISPLAY=:0.0   #[[ -z $SSH_CONNECTION ]] || export DISPLAY=:0.0
 mkdir -p "~/.local/share/gnome-shell/extensions/"
 curl --progress -k -L -f "http://frippery.org/extensions/gnome-shell-frippery-0.9.3.tgz" > /tmp/frippery.tgz || echo -e ' '${RED}'[!]'${RESET}" Issue downloading frippery.tgz" 1>&2
 tar -zxf /tmp/frippery.tgz -C ~/
-#-- Gnome Extension - TopIcons (https://extensions.gnome.org/extension/495/topicons/)    *** isn't working?
+#-- Gnome Extension - TopIcons (https://extensions.gnome.org/extension/495/topicons/)    *** isn't working? <- to check since it mainly fixes a bug.
 #mkdir -p "~/.local/share/gnome-shell/extensions/"   #"/usr/share/gnome-shell/extensions/topIcons@adel.gadllah@gmail.com/"
 #curl --progress -k -L -f "https://extensions.gnome.org/review/download/2236.shell-extension.zip" > /tmp/topIcons.zip || echo -e ' '${RED}'[!]'${RESET}" Issue downloading topIcons.zip" 1>&2
 #unzip -q -o /tmp/topIcons.zip -d "~/.local/share/gnome-shell/extensions/topIcons@adel.gadllah@gmail.com/"
 #-- Gnome Extension - icon-hider (https://github.com/ikalnitsky/gnome-shell-extension-icon-hider)
 #mkdir -p "/usr/share/gnome-shell/extensions/"
 #git clone -q https://github.com/ikalnitsky/gnome-shell-extension-icon-hider.git "/usr/share/gnome-shell/extensions/icon-hider@kalnitsky.org/" || echo -e ' '${RED}'[!] Issue with apt-get'${RESET}
-#-- Gnome Extension - Disable Screen Shield (https://extensions.gnome.org/extension/672/disable-screen-shield/)
+#-- Gnome Extension - Disable Screen Shield (https://extensions.gnome.org/extension/672/disable-screen-shield/) # check patch https://github.com/lgpasquale/gnome-shell-extension-disable-screenshield/issues/2
 #mkdir -p "/usr/share/gnome-shell/extensions/"
 #git clone -q https://github.com/lgpasquale/gnome-shell-extension-disable-screenshield.git "/usr/share/gnome-shell/extensions/disable-screenshield@lgpasquale.com/" || echo -e ' '${RED}'[!] Issue with apt-get'${RESET}
 #-- Gnome Extension - TaskBar (https://extensions.gnome.org/extension/584/taskbar/)
@@ -409,6 +407,10 @@ for EXTENSION in "alternate-tab@gnome-shell-extensions.gcampax.github.com" "driv
   GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed 's_^.\(.*\).$_\1_')
   echo "${GNOME_EXTENSIONS}" | grep -q "${EXTENSION}" || gsettings set org.gnome.shell enabled-extensions "[${GNOME_EXTENSIONS}, '${EXTENSION}']"
 done
+##
+##Updated up to here...
+##
+
 #--- Gnome Extensions (Disable)
 for EXTENSION in "dash-to-dock@micxgx.gmail.com" "workspace-indicator@gnome-shell-extensions.gcampax.github.com"; do
   GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed "s_^.\(.*\).\$_\1_; s_, '${EXTENSION}'__")
