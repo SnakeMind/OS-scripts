@@ -14,7 +14,7 @@
 #-Notes-------------------------------------------------------#
 #  Run as root, just after a fresh/clean install of Kali 2.0. #
 #                             ---                             #
-#  By default it will set the time zone & keyboard to NL.     #
+#  By default it will set the time zone & keyboard to US.     #
 #                             ---                             #
 #  Command line arguments:                                    #
 #    --burp    = Automates configuring Burp Proxy (Free)      #
@@ -46,8 +46,8 @@ fi
 
 ##### Location information
 keyboardApple=false         # Using a Apple/Macintosh keyboard? Change to anything other than 'false' to enable   [ --osx ]
-keyboardlayout="gb"         # Great Britain
-timezone="Europe/London"    # London, Europe
+keyboardlayout="us"         # US International
+timezone="Europe/Brussels"  # Brussels, Europe (More common than Amsterdam)
 
 ##### Optional steps
 hardenDNS=false             # Set static & lock DNS name server                              [ --dns ]
@@ -124,7 +124,7 @@ if [[ "$?" -ne 0 ]]; then
   echo -e ' '${RED}'[!]'${RESET}" ${RED}Possible DNS issues${RESET}(?). Trying DHCP 'fix'." 1>&2
   chattr -i /etc/resolv.conf 2>/dev/null
   dhclient -r
-  route delete default gw 192.168.155.1 2>/dev/null
+  route delete default gw 192.168.26.1 2>/dev/null
   dhclient
   sleep 15
   _TMP=true
@@ -180,9 +180,7 @@ fi
 
 
 ##### (Optional) Check to see if Kali is in a VM. If so, install "Virtual Machine Addons/Tools" for a "better" virtual experiment
-if [ -e "/etc/vmware-tools" ]; then
-  echo -e '\n '${RED}'[!]'${RESET}" VMware Tools is ${RED}already installed${RESET}. Skipping..." 1>&2
-elif (dmidecode | grep -iq vmware); then
+if (dmidecode | grep -iq vmware); then
   ##### Install virtual machines tools ~ http://docs.kali.org/general-use/install-vmware-tools-kali-guest
   echo -e "\n ${GREEN}[+]${RESET} Installing ${GREEN}virtual machines tools${RESET}"
   #--- VM -> Install VMware Tools.
@@ -191,20 +189,8 @@ elif (dmidecode | grep -iq vmware); then
   sleep 2
   mount -o ro /dev/cdrom /mnt/cdrom 2>/dev/null; _mount=$?   # This will only check the first CD drive (if there are multiple bays)
   sleep 2
-  file=$(find /mnt/cdrom/ -maxdepth 1 -type f -name 'VMwareTools-*.tar.gz' -print -quit)
-  ([[ "${_mount}" == 0 && -z "${file}" ]]) && echo -e ' '${RED}'[!]'${RESET}' Incorrect CD/ISO mounted' 1>&2
-  if [[ "${_mount}" == 0 && -n "${file}" ]]; then             # If there is a CD in (and its right!), try to install native Guest Additions
-    echo -e ' '${YELLOW}'[i]'${RESET}' Patching & using "native VMware tools"'
-    apt-get -y -qq install make gcc "linux-headers-$(uname -r)" git || echo -e ' '${RED}'[!] Issue with apt-get'${RESET}
-    git clone -q https://github.com/rasa/vmware-tools-patches.git /tmp/vmware-tools-patches || echo -e ' '${RED}'[!] Issue with apt-get'${RESET}
-    cp -f /mnt/cdrom/VMwareTools-*.tar.gz /tmp/vmware-tools-patches/downloads/
-    pushd /tmp/vmware-tools-patches/ >/dev/null
-    bash untar-and-patch-and-compile.sh
-    popd >/dev/null
-    umount -f /mnt/cdrom 2>/dev/null
-  else                                                       # The fallback is 'open vm tools' ~ http://open-vm-tools.sourceforge.net/about.php
-    echo -e " ${YELLOW}[i]${RESET} VMware Tools CD/ISO isnt mounted"
-    echo -e " ${YELLOW}[i]${RESET} Skipping 'Native VMware Tools', switching to 'Open VM Tools'"
+  # The preferred method on Debian based installs is 'open vm tools' ~ http://open-vm-tools.sourceforge.net/about.php
+    echo -e " ${GREEN}[i]${RESET} Installing 'Open VM Tools'"
     apt-get -y -qq install open-vm-tools open-vm-tools-desktop open-vm-tools-dkms|| echo -e ' '${RED}'[!] Issue when git cloning'${RESET}
     apt-get -y -qq install make || echo -e ' '${RED}'[!] Issue with apt-get'${RESET}    # nags afterwards
   fi
@@ -233,18 +219,18 @@ fi
 ##### Check to see if there is a second ethernet card (if so, set an static IP address)
 ip addr show eth1 &>/dev/null
 if [[ "$?" == 0 ]]; then
-  ##### Set a static IP address (192.168.155.175/24) on eth1
-  echo -e "\n ${GREEN}[+]${RESET} Setting a ${GREEN}static IP address${RESET} (${BOLD}192.168.155.175/24${RESET}) on ${BOLD}eth1${RESET}"
-  ip addr add 192.168.155.175/24 dev eth1 2>/dev/null
-  route delete default gw 192.168.155.1 2>/dev/null
+  ##### Set a static IP address (192.168.236.175/24) on eth1
+  echo -e "\n ${GREEN}[+]${RESET} Setting a ${GREEN}static IP address${RESET} (${BOLD}192.168.236.175/24${RESET}) on ${BOLD}eth1${RESET}"
+  ip addr add 192.168.236.175/24 dev eth1 2>/dev/null
+  route delete default gw 192.168.236.1 2>/dev/null
   file=/etc/network/interfaces.d/eth1.cfg; [ -e "${file}" ] && cp -n $file{,.bkup}
   grep -q '^iface eth1 inet static' "${file}" 2>/dev/null || cat <<EOF > "${file}"
 auto eth1
 iface eth1 inet static
-    address 192.168.155.175
+    address 192.168.236.175
     netmask 255.255.255.0
-    gateway 192.168.155.1
-    post-up route delete default gw 192.168.155.1
+    gateway 192.168.236.1
+    post-up route delete default gw 192.168.236.1
 EOF
 fi
 
