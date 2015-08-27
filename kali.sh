@@ -5,16 +5,16 @@
 #  Personal post-install script for Kali Linux 2.0.           #
 #-Author(s)---------------------------------------------------#
 #  g0tmilk ~ https://blog.g0tmi1k.com/                        #
+#  SnakeMind ~ http://rodeion.com                             #
 #-Operating System--------------------------------------------#
 #  Designed for: Kali Linux 2.0.0 [x64] (VM - VMware)         #
-#     Tested on: Kali Linux 2.0.0 [x64/x84/full/light/mini/vm]#
+#     Tested on: Kali Linux 2.0.0 [x64/vm]                    #
 #-Licence-----------------------------------------------------#
 #  MIT License ~ http://opensource.org/licenses/MIT           #
 #-Notes-------------------------------------------------------#
 #  Run as root, just after a fresh/clean install of Kali 2.0. #
-#  Kali v1.0 see ~ https://g0tmi1k/os-scripts/master/kali1.sh #
 #                             ---                             #
-#  By default it will set the time zone & keyboard to UK/GB.  #
+#  By default it will set the time zone & keyboard to NL.     #
 #                             ---                             #
 #  Command line arguments:                                    #
 #    --burp    = Automates configuring Burp Proxy (Free)      #
@@ -34,10 +34,9 @@
 
 if [ 1 -eq 0 ]; then    # This is never true, thus it acts as block comments ;)
 ### One liner - Grab the latest version and execute! ###########################
-wget -qO /tmp/kali.sh https://raw.github.com/g0tmi1k/os-scripts/master/kali.sh && bash /tmp/kali.sh --osx --dns --burp --openvas
+wget -qO /tmp/kali.sh https://raw.githubusercontent.com/SnakeMind/OS-scripts/master/kali.sh && bash /tmp/kali.sh --dns --burp --openvas
 ################################################################################
-## Shorten URL: >>>   wget -qO- http://bit.do/postkali | bash   <<<
-##  Alt Method: curl -s -L -k https://raw.github.com/g0tmi1k/kali-postinstall/master/kali_postinstall.sh > kali.sh | nohup bash
+##  Alt Method: curl -s -L -k https://raw.githubusercontent.com/SnakeMind/OS-scripts/master/kali.sh > kali.sh | nohup bash
 ################################################################################
 fi
 
