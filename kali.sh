@@ -240,15 +240,8 @@ if [ "${hardenDNS}" != "false" ]; then
   echo -e "\n ${GREEN}[+]${RESET} Setting static & protecting ${GREEN}DNS name servers${RESET}"
   file=/etc/resolv.conf; [ -e "${file}" ] && cp -n $file{,.bkup}
   chattr -i "${file}" 2>/dev/null
-  #--- Remove duplicate results
-  #uniq "${file}" > "$file.new"; mv $file{.new,}
-  #--- Use OpenDNS DNS
-  #echo -e 'nameserver 208.67.222.222\nnameserver 208.67.220.220' > "${file}"
   #--- Use Google DNS
   echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > "${file}"
-  #--- Add domain
-  #echo -e "domain ${domainName}\n#search ${domainName}" >> "${file}"
-  #--- Protect it
   chattr +i "${file}" 2>/dev/null
 else
   echo -e "\n ${YELLOW}[i]${RESET} ${YELLOW}Skipping DNS${RESET} (missing: '$0 ${BOLD}--dns${RESET}')..." 1>&2
@@ -258,8 +251,6 @@ fi
 ##### Update location information - set either value to "" to skip.
 echo -e "\n ${GREEN}[+]${RESET} Updating ${GREEN}location information${RESET} ~ keyboard layout (${BOLD}${keyboardlayout}${RESET}) & time zone (${BOLD}${timezone}${RESET})"
 [ "${keyboardApple}" != "false" ]  && echo -e "\n ${GREEN}[+]${RESET} Applying ${GREEN}Apple hardware${RESET} profile"
-#keyboardlayout="gb"          # Great Britain
-#timezone="Europe/London"     # London, Europe
 #--- Configure keyboard layout
 if [ ! -z "${keyboardlayout}" ]; then
   geoip_keyboard=$(curl -s http://ifconfig.io/country_code | tr '[:upper:]' '[:lower:]')
@@ -274,25 +265,14 @@ fi
 echo "${timezone}" > /etc/timezone           #Etc/GMT vs Etc/UTC vs UTC vs Europe/London
 ln -sf "/usr/share/zoneinfo/$(cat /etc/timezone)" /etc/localtime
 dpkg-reconfigure -f noninteractive tzdata
-#--- Setting locale    # Cant't do due to user input
-#sed -i 's/^# en_/en_/' /etc/locale.gen   #en_GB en_US
-#locale-gen
-##echo -e 'LC_ALL=en_US.UTF-8\nLANG=en_US.UTF-8\nLANGUAGE=en_US:en' > /etc/default/locale
-#dpkg-reconfigure -f noninteractive tzdata
-##locale -a    # Check
 #--- Installing ntp
 apt-get -y -qq install ntp ntpdate || echo -e ' '${RED}'[!] Issue with apt-get'${RESET}
-#--- Configuring ntp
-#file=/etc/default/ntp; [ -e "${file}" ] && cp -n $file{,.bkup}
-#grep -q "interface=127.0.0.1" "${file}" || sed -i "s/NTPD_OPTS='/NTPD_OPTS='--interface=127.0.0.1 /" "${file}"
 #--- Update time
 ntpdate -b -s -u pool.ntp.org
 #--- Start service
 systemctl restart ntp
 #--- Remove from start up
 systemctl disable ntp 2>/dev/null
-#--- Check
-#date
 #--- Only used for stats at the end
 start_time=$(date +%s)
 
@@ -397,6 +377,10 @@ chmod -f 0500 "${file}"
 #chmod -f 0500 "${file}"
 #--- Disable random MAC address on start up
 rm -f /etc/network/if-pre-up.d/macchanger
+
+##
+##Updated up to here...
+##
 
 
 if [[ $(which gnome-shell) ]]; then
