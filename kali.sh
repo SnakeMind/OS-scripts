@@ -1,6 +1,6 @@
 #!/bin/bash
 #-Metadata----------------------------------------------------#
-#  Filename: kali.sh                     (Update: 2015-08-26) #
+#  Filename: kali.sh                     (Update: 2015-09-15) #
 #-Info--------------------------------------------------------#
 #  Personal post-install script for Kali Linux 2.0.           #
 #-Author(s)---------------------------------------------------#
@@ -8,12 +8,12 @@
 #  SnakeMind ~ http://rodeion.com                             #
 #-Operating System--------------------------------------------#
 #  Designed for: Kali Linux 2.0.0 [x64] (VM - VMware)         #
-#     Tested on: Kali Linux 2.0.0 [x64/vm]                    #
-#     Tested on: Kali Linux 2.0.0 x64/x84/full/light/mini/vm  #
+#     Tested on: Kali Linux 2.0.0 x64/vm                      #
 #-Licence-----------------------------------------------------#
 #  MIT License ~ http://opensource.org/licenses/MIT           #
 #-Notes-------------------------------------------------------#
 #  Run as root, just after a fresh/clean install of Kali 2.0. #
+
 #                             ---                             #
 #  By default it will set the time zone & keyboard to US.     #
 #                             ---                             #
@@ -36,9 +36,6 @@
 
 if [ 1 -eq 0 ]; then    # This is never true, thus it acts as block comments ;)
 ### One liner - Grab the latest version and execute! ###########################
-wget -qO /tmp/kali.sh https://raw.githubusercontent.com/SnakeMind/OS-scripts/master/kali.sh && bash /tmp/kali.sh --dns --burp --openvas
-################################################################################
-##  Alt Method: curl -s -L -k https://raw.githubusercontent.com/SnakeMind/OS-scripts/master/kali.sh > kali.sh | nohup bash
 wget -qO /tmp/kali.sh https://raw.github.com/SnakeMind/os-scripts/master/kali.sh && bash /tmp/kali.sh --osx --dns --burp --openvas --keyboard us --timezone "Europe/Amsterdam"
 ################################################################################
 ## Shorten URL: >->->   wget -qO- http://bit.do/postkali | bash   <-<-<
@@ -52,13 +49,8 @@ fi
 
 ##### Location information
 keyboardApple=false         # Using a Apple/Macintosh keyboard? Change to anything other than 'false' to enable   [ --osx ]
-<<<<<<< HEAD
-keyboardlayout="us"         # US International
-timezone="Europe/Brussels"  # Brussels, Europe (More common than Amsterdam)
-=======
 keyboardLayout=""           # Set keyboard layout                                                                 [ --keyboard gb]
 timezone=""                 # Set timezone location                                                               [ --timezone Europe/London ]
->>>>>>> g0tmi1k/master
 
 ##### Optional steps
 hardenDNS=false             # Set static & lock DNS name server                                                   [ --dns ]
@@ -223,7 +215,9 @@ fi
 
 
 ##### (Optional) Check to see if Kali is in a VM. If so, install "Virtual Machine Addons/Tools" for a "better" virtual experiment
-if (dmidecode | grep -iq vmware); then
+if [ -e "/etc/vmware-tools" ]; then
+  echo -e '\n '${RED}'[!]'${RESET}" VMware Tools is ${RED}already installed${RESET}. Skipping..." 1>&2
+elif (dmidecode | grep -iq vmware); then
   ##### Install virtual machines tools ~ http://docs.kali.org/general-use/install-vmware-tools-kali-guest
   echo -e "\n ${GREEN}[+]${RESET} Installing ${GREEN}virtual machine tools${RESET}"
   #--- VM -> Install VMware Tools.
@@ -231,12 +225,6 @@ if (dmidecode | grep -iq vmware); then
   umount -f /mnt/cdrom 2>/dev/null
   sleep 2s
   mount -o ro /dev/cdrom /mnt/cdrom 2>/dev/null; _mount=$?   # This will only check the first CD drive (if there are multiple bays)
-<<<<<<< HEAD
-  sleep 2
-  # The preferred method on Debian based installs is 'open vm tools' ~ http://open-vm-tools.sourceforge.net/about.php
-    echo -e " ${GREEN}[i]${RESET} Installing 'Open VM Tools'"
-    apt-get -y -qq install open-vm-tools open-vm-tools-desktop open-vm-tools-dkms|| echo -e ' '${RED}'[!] Issue when git cloning'${RESET}
-=======
   sleep 2s
   file=$(find /mnt/cdrom/ -maxdepth 1 -type f -name 'VMwareTools-*.tar.gz' -print -quit)
   ([[ "${_mount}" == 0 && -z "${file}" ]]) && echo -e ' '${RED}'[!]'${RESET}' Incorrect CD/ISO mounted' 1>&2
@@ -254,7 +242,6 @@ if (dmidecode | grep -iq vmware); then
     echo -e " ${YELLOW}[i]${RESET} VMware Tools CD/ISO isn't mounted"
     echo -e " ${YELLOW}[i]${RESET} Skipping 'Native VMware Tools', switching to 'Open VM Tools'"
     apt-get -y -qq install open-vm-tools open-vm-tools-desktop open-vm-tools-dkms || echo -e ' '${RED}'[!] Issue when git cloning'${RESET} 1>&2
->>>>>>> g0tmi1k/master
     apt-get -y -qq install make || echo -e ' '${RED}'[!] Issue with apt-get'${RESET}    # nags afterwards
   fi
 elif [ -e "/etc/init.d/vboxadd" ]; then
@@ -307,8 +294,15 @@ if [ "${hardenDNS}" != "false" ]; then
   echo -e "\n ${GREEN}[+]${RESET} Setting static & protecting ${GREEN}DNS name servers${RESET}"
   file=/etc/resolv.conf; [ -e "${file}" ] && cp -n $file{,.bkup}
   chattr -i "${file}" 2>/dev/null
+ #--- Remove duplicate results
+  #uniq "${file}" > "$file.new"; mv $file{.new,}
+  #--- Use OpenDNS DNS
+  #echo -e 'nameserver 208.67.222.222\nnameserver 208.67.220.220' > "${file}"
   #--- Use Google DNS
   echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > "${file}"
+  #--- Add domain
+  #echo -e "domain ${domainName}\n#search ${domainName}" >> "${file}"
+  #--- Protect it
   chattr +i "${file}" 2>/dev/null
 else
   echo -e "\n ${YELLOW}[i]${RESET} ${YELLOW}Skipping DNS${RESET} (missing: '$0 ${BOLD}--dns${RESET}')..." 1>&2
@@ -318,12 +312,9 @@ fi
 ##### Update location information - set either value to "" to skip.
 echo -e "\n ${GREEN}[+]${RESET} Updating ${GREEN}location information${RESET} ~ keyboard layout (${BOLD}${keyboardLayout}${RESET}) & time zone (${BOLD}${timezone}${RESET})"
 [ "${keyboardApple}" != "false" ]  && echo -e "\n ${GREEN}[+]${RESET} Applying ${GREEN}Apple hardware${RESET} profile"
-<<<<<<< HEAD
-=======
 #keyboardLayout="gb"          # Great Britain
 #timezone="Europe/London"     # London, Europe
 #[ -z "${timezone}" ] && timezone=Etc/UTC    #Etc/GMT vs Etc/UTC vs UTC vs Europe/London
->>>>>>> g0tmi1k/master
 #--- Configure keyboard layout
 if [[ -n "${keyboardLayout}" ]]; then
   geoip_keyboard=$(curl -s http://ifconfig.io/country_code | tr '[:upper:]' '[:lower:]')
@@ -334,14 +325,6 @@ if [[ -n "${keyboardLayout}" ]]; then
   #dpkg-reconfigure -f noninteractive keyboard-configuration   #dpkg-reconfigure console-setup   #dpkg-reconfigure keyboard-configuration -u    # Need to restart xserver for effect
 fi
 #--- Changing time zone
-<<<<<<< HEAD
-[ -z "${timezone}" ] && timezone=Etc/UTC     #Etc/GMT vs Etc/UTC vs UTC
-echo "${timezone}" > /etc/timezone           #Etc/GMT vs Etc/UTC vs UTC vs Europe/London
-ln -sf "/usr/share/zoneinfo/$(cat /etc/timezone)" /etc/localtime
-dpkg-reconfigure -f noninteractive tzdata
-#--- Installing ntp
-apt-get -y -qq install ntp ntpdate || echo -e ' '${RED}'[!] Issue with apt-get'${RESET}
-=======
 if [[ -n "${timezone}" ]]; then
   echo "${timezone}" > /etc/timezone
   ln -sf "/usr/share/zoneinfo/$(cat /etc/timezone)" /etc/localtime
@@ -358,13 +341,14 @@ apt-get -y -qq install ntp ntpdate || echo -e ' '${RED}'[!] Issue with apt-get'$
 #--- Configuring ntp
 #file=/etc/default/ntp; [ -e "${file}" ] && cp -n $file{,.bkup}
 #grep -q "interface=127.0.0.1" "${file}" || sed -i "s/NTPD_OPTS='/NTPD_OPTS='--interface=127.0.0.1 /" "${file}"
->>>>>>> g0tmi1k/master
 #--- Update time
 ntpdate -b -s -u pool.ntp.org
 #--- Start service
 systemctl restart ntp
 #--- Remove from start up
 systemctl disable ntp 2>/dev/null
+#--- Check
+#date
 #--- Only used for stats at the end
 start_time=$(date +%s)
 
@@ -471,8 +455,6 @@ chmod -f 0500 "${file}"
 rm -f /etc/network/if-pre-up.d/macchanger
 
 
-
-
 if [[ $(which gnome-shell) ]]; then
 ##### Configure GNOME 3
 echo -e "\n ${GREEN}[+]${RESET} Configuring ${GREEN}GNOME 3${RESET} ~ desktop environment"
@@ -481,13 +463,8 @@ export DISPLAY=:0.0   #[[ -z $SSH_CONNECTION ]] || export DISPLAY=:0.0
 mkdir -p ~/.local/share/gnome-shell/extensions/
 curl --progress -k -L -f "http://frippery.org/extensions/gnome-shell-frippery-0.9.3.tgz" > /tmp/frippery.tgz || echo -e ' '${RED}'[!]'${RESET}" Issue downloading frippery.tgz" 1>&2
 tar -zxf /tmp/frippery.tgz -C ~/
-<<<<<<< HEAD
-#-- Gnome Extension - TopIcons (https://extensions.gnome.org/extension/495/topicons/)    *** isn't working? <- to check since it mainly fixes a bug.
-#mkdir -p "~/.local/share/gnome-shell/extensions/"   #"/usr/share/gnome-shell/extensions/topIcons@adel.gadllah@gmail.com/"
-=======
 #-- Gnome Extension - TopIcons (https://extensions.gnome.org/extension/495/topicons/)   # Doesn't work with v3.10
 #mkdir -p ~/.local/share/gnome-shell/extensions/topIcons@adel.gadllah@gmail.com/
->>>>>>> g0tmi1k/master
 #curl --progress -k -L -f "https://extensions.gnome.org/review/download/2236.shell-extension.zip" > /tmp/topIcons.zip || echo -e ' '${RED}'[!]'${RESET}" Issue downloading topIcons.zip" 1>&2
 #unzip -q -o /tmp/topIcons.zip -d ~/.local/share/gnome-shell/extensions/topIcons@adel.gadllah@gmail.com/
 #sed -i 's/"shell-version": \[$/"shell-version": \[ "3.10",/' ~/.local/share/gnome-shell/extensions/topIcons@adel.gadllah@gmail.com/metadata.json
@@ -496,14 +473,7 @@ mkdir -p "/usr/share/gnome-shell/extensions/"
 git clone -q https://github.com/ikalnitsky/gnome-shell-extension-icon-hider.git /usr/share/gnome-shell/extensions/icon-hider@kalnitsky.org/ || echo -e ' '${RED}'[!] Issue when git cloning'${RESET} 1>&2
 #-- Gnome Extension - Disable Screen Shield (https://extensions.gnome.org/extension/672/disable-screen-shield/)   # Doesn't work with v3.10
 #mkdir -p "/usr/share/gnome-shell/extensions/"
-<<<<<<< HEAD
-#git clone -q https://github.com/ikalnitsky/gnome-shell-extension-icon-hider.git "/usr/share/gnome-shell/extensions/icon-hider@kalnitsky.org/" || echo -e ' '${RED}'[!] Issue with apt-get'${RESET}
-#-- Gnome Extension - Disable Screen Shield (https://extensions.gnome.org/extension/672/disable-screen-shield/) # check patch https://github.com/lgpasquale/gnome-shell-extension-disable-screenshield/issues/2
-#mkdir -p "/usr/share/gnome-shell/extensions/"
-#git clone -q https://github.com/lgpasquale/gnome-shell-extension-disable-screenshield.git "/usr/share/gnome-shell/extensions/disable-screenshield@lgpasquale.com/" || echo -e ' '${RED}'[!] Issue with apt-get'${RESET}
-=======
 #git clone -q https://github.com/lgpasquale/gnome-shell-extension-disable-screenshield.git /usr/share/gnome-shell/extensions/disable-screenshield@lgpasquale.com/ || echo -e ' '${RED}'[!] Issue when git cloning'${RESET} 1>&2
->>>>>>> g0tmi1k/master
 #-- Gnome Extension - TaskBar (https://extensions.gnome.org/extension/584/taskbar/)
 mkdir -p "/usr/share/gnome-shell/extensions/"
 git clone -q https://github.com/zpydr/gnome-shell-extension-taskbar.git /usr/share/gnome-shell/extensions/TaskBar@zpydr/ || echo -e ' '${RED}'[!] Issue when git cloning'${RESET} 1>&2
@@ -512,9 +482,6 @@ for EXTENSION in "alternate-tab@gnome-shell-extensions.gcampax.github.com" "driv
   GNOME_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions | sed 's_^.\(.*\).$_\1_')
   echo "${GNOME_EXTENSIONS}" | grep -q "${EXTENSION}" || gsettings set org.gnome.shell enabled-extensions "[${GNOME_EXTENSIONS}, '${EXTENSION}']"
 done
-##
-##Updated up to here...
-##
 
 #--- Gnome Extensions (Disable)
 for EXTENSION in "dash-to-dock@micxgx.gmail.com" "workspace-indicator@gnome-shell-extensions.gcampax.github.com"; do
