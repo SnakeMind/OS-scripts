@@ -5,6 +5,7 @@
 #  Personal post-install script for Kali Linux 2.0.           #
 #-Author(s)---------------------------------------------------#
 #  g0tmilk ~ https://blog.g0tmi1k.com/                        #
+#  SnakeMind - To match personal preferences                  #
 #-Operating System--------------------------------------------#
 #  Designed for: Kali Linux 2.x [x64] (VM - VMware)           #
 #     Tested on: Kali Linux 2.0.0 x64/x84/full/light/mini/vm  #
