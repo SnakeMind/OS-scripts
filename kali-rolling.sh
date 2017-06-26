@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 #-Metadata----------------------------------------------------------#
 #  Filename: personalize-kali.sh        (Updated: 2017-06-26)       #
 #-Info--------------------------------------------------------------#
@@ -25,9 +25,7 @@
 # Ended current customizations at line 1185                         #
 #-------------------------------------------------------------------#
 
-## Where my machine is at
-keyboardLayout="en_US.UTF-8"
-timezone="Europe/Amsterdam"
+## Get it: wget -qO kali-rolling.sh https://raw.githubusercontent.com/SnakeMind/OS-scripts/master/kali-rolling.sh
 
 ##### (Cosmetic) Colour output
 RED="\033[01;31m"      # Issues/Errors
