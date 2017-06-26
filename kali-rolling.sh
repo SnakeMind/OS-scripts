@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 #-Metadata----------------------------------------------------------#
 #  Filename: personalize-kali.sh        (Updated: 2017-06-26)       #
 #-Info--------------------------------------------------------------#
@@ -24,7 +24,6 @@
 #-------------------------------------------------------------------#
 # Ended current customizations at line 1185                         #
 #-------------------------------------------------------------------#
-
 ## Get it: wget -qO kali-rolling.sh https://raw.githubusercontent.com/SnakeMind/OS-scripts/master/kali-rolling.sh
 
 ##### (Cosmetic) Colour output
@@ -34,7 +33,6 @@ YELLOW="\033[01;33m"   # Warnings/Information
 BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
-
 STAGE=0
 TOTAL=$( grep '(${STAGE}/${TOTAL})' $0 | wc -l );(( TOTAL-- ))
 
