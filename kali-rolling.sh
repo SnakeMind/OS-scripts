@@ -294,7 +294,7 @@ sleep 5s
 (( STAGE++ )); echo -e "\n\n ${GREEN}[+]${RESET} (${STAGE}/${TOTAL}) ${GREEN}Cosmetics${RESET}${RESET} ~ Giving it a personal touch"
 export DISPLAY=:0.0
 mkdir -p ~/.themes/
-timeout 300 curl --progress -k -L -f "https://dl.opendesktop.org/api/files/download/id/1461767736/90145-axiom.tar.gz" > /tmp/axiom.tar.gz \
+timeout 300 curl --progress -k -L -f "https://dl.opendesktop.org/api/files/downloadfile/id/1461767736/s/7aa34d877afecf27ece89a1c1ead7735/t/1512772853/90145-axiom.tar.gz" > /tmp/axiom.tar.gz \
   || echo -e ' '${RED}'[!]'${RESET}" Issue downloading axiom.tar.gz" 1>&2    #***!!! hardcoded path!
 tar -zxf /tmp/axiom.tar.gz -C ~/.themes/
 xfconf-query -n -c xsettings -p /Net/ThemeName -s "axiomd"
@@ -398,7 +398,7 @@ file=/root/.gtk-bookmarks; [ -e "${file}" ] && cp -n $file{,.bkup}
 grep -q '^file:///root/Downloads ' "${file}" 2>/dev/null \
   || echo 'file:///root/Downloads Downloads' >> "${file}"
 grep -q '^file:///mnt/hgfs ' "${file}" 2>/dev/null \
-    || echo 'file:///mnt/hgfs VMShare' >> "${file}")
+    || echo 'file:///mnt/hgfs VMShare' >> "${file}"
 grep -q '^file:///tmp ' "${file}" 2>/dev/null \
   || echo 'file:///tmp /TMP' >> "${file}"
 grep -q '^file:///usr/share ' "${file}" 2>/dev/null \
